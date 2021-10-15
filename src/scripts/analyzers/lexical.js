@@ -61,21 +61,25 @@ export const lexical = () => {
   while (true) {
     let index = 0
 
-    if (!tokens[index]) break
+    if (!code[index]) break
 
-    const { element, nextIndex } = getValidElement(tokens, tokens[index])
+    const { token, nextIndex } = getValidToken(code, index)
 
     index = nextIndex
   }
 }
 
-function getValidElement(tokens, startingIndex) {
+function getValidToken(tokens, startingIndex) {
   let acumulativeEndIndex = 0
-  for (let i = startingIndex; i < tokens.length; i++) {
-    const element = array[i + acumulativeEndIndex];
 
-    if (element) {
-      acceptedTokens.includes()
+  for (let i = startingIndex; i < tokens.length; i++) {
+    const token = array[i + acumulativeEndIndex];
+
+    if (token && acceptedTokens.includes(token)) { // Not working, review
+      return {
+        value: token,
+        description: ''
+      } 
     }
   }
 }
