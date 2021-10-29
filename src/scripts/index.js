@@ -4,7 +4,11 @@ const inputElement = document.querySelector('#input')
 const outputElement = document.querySelector('#output')
 
 function testCode() {
-  lexical()
+  const output = lexical(inputElement.value.toString())
+
+  outputElement.value = output
+    .map((item) => item.value + ' - ' + item.description)
+    .join('\n')
 }
 
 
