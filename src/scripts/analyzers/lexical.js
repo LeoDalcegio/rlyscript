@@ -47,36 +47,36 @@ const acceptedTokens = [
 ]
 
 export const lexical = (code) => {
-  const foundTokens = []
+  const { variables, lastIndex } = getVariables(code)
 
-  let index = 0
+  const foundTokens = variables
+
+  let startingIndex = lastIndex
 
   while (true) {
-    if (!code[index]) break
+    if (!code[startingIndex]) break
 
-    const { value, description, nextIndex } = getValidToken(code, index)
-
-    console.log(value, description, nextIndex)
+    const { value, description, nextIndex } = getValidToken(code, startingIndex, variables)
 
     if (nextIndex === 0) break;
 
     foundTokens.push({ value, description })
 
-    index = nextIndex
+    startingIndex = nextIndex
   }
 
   return foundTokens
 }
 
-function getValidToken(tokens, startingIndex) {
+function getValidToken(code, startingIndex, variables) {
   let returningValue = {
     value: '',
     description: '',
     nextIndex: 0
   }
 
-  for (let i = startingIndex; i <= tokens.length; i++) {
-    const token = tokens.slice(startingIndex, i);
+  for (let i = startingIndex; i <= code.length; i++) {
+    const token = code.slice(startingIndex, i);
 
     for (const acceptedToken of acceptedTokens) {
       if (acceptedToken.value.toLowerCase() == token.trim().toLowerCase()) {
@@ -85,8 +85,42 @@ function getValidToken(tokens, startingIndex) {
         returningValue.nextIndex = i
       }
     }
+
+    for (const acceptedVariable of variables) {
+      if (acceptedVariable.value.toLowerCase() == token.trim().toLowerCase()) {
+        returningValue.value = acceptedVariable.value
+        returningValue.description = acceptedVariable.description
+        returningValue.nextIndex = i
+      }
+    }
   }
 
   return returningValue
 }
 
+function getVariables(code) {
+  const lastIndex = code.indexOf('BEGIN');
+
+  const variableDeclarationSectionLines = code.substring(0, lastIndex).split('\n')
+
+  let variables = []
+
+  for (var i = 0; i < variableDeclarationSectionLines.length; i++) {
+    const line = variableDeclarationSectionLines[i]
+
+    if (line.trim() == "") continue
+
+    if (line.trim().toUpperCase() == 'VAR') {
+      variables.push({ value: 'Var', description: 'Indicador de início da sessão de declaração de variáveis' })
+
+      continue
+    }
+
+    const variable = line.substring(0, line.indexOf(':'))
+    const type = line.substring(line.indexOf(':') + 1, line.length).trim()
+
+    variables.push({ value: variable, description: `Variável "${variable}" do tipo "${type}"` })
+  }
+
+  return { variables, lastIndex }
+}
