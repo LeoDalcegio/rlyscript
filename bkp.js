@@ -30,8 +30,8 @@ const acceptedTokens = [
   { value: 'Boolean', description: 'Tipo de dado "Boolean"' },
 
   // acceptedOperators 
-  { value: '<', description: 'Operador "menor que"' },
-  { value: '>', description: 'Operador "maior que"' },
+  { value: '<', description: 'Operador "maior que"' },
+  { value: '>', description: 'Operador "menor que"' },
   { value: '==', description: 'Operador de comparação "igual"' },
   { value: '+', description: 'Operador de adição' },
   { value: '-', description: 'Operador de subtração' },
@@ -48,8 +48,10 @@ const acceptedTokens = [
   { value: '*=', description: 'Operador de atribuição de multiplicação' },
 
   // TODO: EXCLUIR
-  //{ value: 'idade', description: 'Token não reconhecido' },
+  { value: 'idade', description: 'Token não reconhecido' },
 ]
+
+// TODO: encontrar variaveis não
 
 const NUMBER = /^[0-9]+$/;
 
@@ -87,9 +89,9 @@ function getValidToken(code, startingIndex, variables) {
   // normal code
   for (let i = startingIndex; i <= code.length; i++) {
     const token = code.slice(startingIndex, i);
-    const previousToken = code.slice(startingIndex - 1, i - 1);
 
     // isDoubleQuote
+
     if (token === '"') {
       const nextDoubleQuoteIndex = code.indexOf('"', startingIndex + 1) + 1
 
@@ -118,6 +120,8 @@ function getValidToken(code, startingIndex, variables) {
       return returningValue
     }
 
+    // isUnknowVariable
+
     // isToken
     for (const acceptedToken of acceptedTokens) {
       if (acceptedToken.value.toLowerCase() == token.trim().toLowerCase()) {
@@ -135,35 +139,9 @@ function getValidToken(code, startingIndex, variables) {
         returningValue.nextIndex = i
       }
     }
-
-    // isUnknowVariable
-
-    // verificar se é ( ou espaço na posição ANTERIOR, 
-    // verificar se não tem double quote dps
-    // verificar oq q tem no meio deles
-    // se oq tem no meio nao existir, token invalido
-    // retorna a ultima posição do token invalido 
-    if (previousToken === '(' && token !== '"') {
-      console.log('entrou, ')
-      console.log(previousToken)
-      console.log(token)
-      const finalUnknownVariableIndex = code.indexOf(')', startingIndex - 1)
-
-      const unknownVariable = code.slice(startingIndex, finalUnknownVariableIndex)
-
-      returningValue.value = unknownVariable
-      returningValue.description = 'Token não reconhecido'
-      returningValue.nextIndex = finalUnknownVariableIndex
-
-      return returningValue
-    }
   }
 
   return returningValue
-}
-
-function isVariable(token) {
-
 }
 
 function getVariables(code) {
@@ -192,3 +170,6 @@ function getVariables(code) {
 
   return { variables, lastIndex }
 }
+
+
+

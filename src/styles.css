@@ -1,4 +1,21 @@
 textarea {
-  width: 500px;
-  height: 300px;
+  width: 45vw;
+  height: 80vh;
+}
+
+#test {
+  font-weight: 600;
+  background-color: #4CAF50;
+  border: none;
+  color: white;
+  padding: 0 12px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 18px;
+  cursor: pointer
+}
+
+#container {
+  display: flex;
 }

@@ -6,18 +6,22 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="styles.css">
-  <title>Document</title>
+  <title>rlyScript</title>
 </head>
 
 <body>
-  <textarea id="input">
-  </textarea>
+  <div id="container">
 
-  <button onclick=" testCode()">
-    Testar
-  </button>
+    <textarea id="input" placeholder="Seu código aqui"></textarea>
 
-  <textarea id="output"></textarea>
+    <button id="test" onclick=" testCode()">
+      ANALISAR
+    </button>
+
+    <textarea id="output-lexical" readonly></textarea>
+
+  </div>
+
 
   <script src="./scripts/index.js" type="module"></script>
 </body>
