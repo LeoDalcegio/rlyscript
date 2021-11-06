@@ -1,7 +1,8 @@
 import { lexical } from './analyzers/lexical.js'
 
 const inputElement = document.querySelector('#input')
-const outputElement = document.querySelector('#output-lexical')
+const lexicalOutputElement = document.querySelector('#output-lexical')
+const syntaticOutputElement = document.querySelector('#output-syntatic')
 
 function createTestInput() {
   const testText = `var
@@ -33,10 +34,15 @@ end`
 createTestInput()
 
 function testCode() {
-  const output = lexical(inputElement.value.toString())
+  const lexicalOutput = lexical(inputElement.value.toString())
+  const syntaticOutput = syntatic(inputElement.value.toString())
 
-  outputElement.value = output
+  lexicalOutputElement.value = lexicalOutput
     .map((item) => item.value + ' - ' + item.description)
+    .join('\n')
+
+  syntaticOutputElement.value = syntaticOutput
+    .map((item) => item.description)
     .join('\n')
 }
 

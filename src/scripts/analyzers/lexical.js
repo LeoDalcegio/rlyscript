@@ -1,3 +1,5 @@
+import { isNumber } from '../../helpers/isNumber.js'
+
 const acceptedTokens = [
   // acceptedIndicators
   { value: 'Begin', description: 'Indicador de início de código' },
@@ -46,14 +48,7 @@ const acceptedTokens = [
   { value: '-=', description: 'Operador de atribuição de subtração' },
   { value: '/=', description: 'Operador de atribuição de divisão' },
   { value: '*=', description: 'Operador de atribuição de multiplicação' },
-
-  // TODO: EXCLUIR
-  //{ value: 'idade', description: 'Token não reconhecido' },
 ]
-
-const NUMBER = /^[0-9]+$/;
-
-const isNumber = character => NUMBER.test(character);
 
 export const lexical = (code) => {
   const { variables, lastIndex } = getVariables(code)
@@ -119,37 +114,40 @@ function getValidToken(code, startingIndex, variables) {
     }
 
     // isToken
-    for (const acceptedToken of acceptedTokens) {
-      if (acceptedToken.value.toLowerCase() == token.trim().toLowerCase()) {
-        returningValue.value = acceptedToken.value
-        returningValue.description = acceptedToken.description
-        returningValue.nextIndex = i
-      }
+    const isTokenResponse = isToken(token)
+
+    if (isTokenResponse.value !== "") {
+      returningValue.value = isTokenResponse.value
+      returningValue.description = isTokenResponse.description
+      returningValue.nextIndex = i
     }
 
     // isVariable
-    for (const acceptedVariable of variables) {
-      if (acceptedVariable.value.toLowerCase() == token.trim().toLowerCase()) {
-        returningValue.value = acceptedVariable.value
-        returningValue.description = acceptedVariable.description
-        returningValue.nextIndex = i
-      }
+    const isVariableResponse = isVariable(token, variables)
+
+    if (isVariableResponse.value !== "") {
+      returningValue.value = isVariableResponse.value
+      returningValue.description = isVariableResponse.description
+      returningValue.nextIndex = i
+
+      return returningValue
     }
 
     // isUnknowVariable
-
-    // verificar se é ( ou espaço na posição ANTERIOR, 
-    // verificar se não tem double quote dps
-    // verificar oq q tem no meio deles
-    // se oq tem no meio nao existir, token invalido
-    // retorna a ultima posição do token invalido 
     if (previousToken === '(' && token !== '"') {
-      console.log('entrou, ')
-      console.log(previousToken)
-      console.log(token)
       const finalUnknownVariableIndex = code.indexOf(')', startingIndex - 1)
 
       const unknownVariable = code.slice(startingIndex, finalUnknownVariableIndex)
+
+      const isVariableResponse = isVariable(unknownVariable, variables)
+
+      if (isVariableResponse.value !== "") {
+        returningValue.value = isVariableResponse.value
+        returningValue.description = isVariableResponse.description
+        returningValue.nextIndex = finalUnknownVariableIndex
+
+        return returningValue
+      }
 
       returningValue.value = unknownVariable
       returningValue.description = 'Token não reconhecido'
@@ -162,8 +160,36 @@ function getValidToken(code, startingIndex, variables) {
   return returningValue
 }
 
-function isVariable(token) {
+function isToken(token) {
+  let returningValue = {
+    value: '',
+    description: '',
+  }
 
+  for (const acceptedToken of acceptedTokens) {
+    if (acceptedToken.value.toLowerCase() == token.trim().toLowerCase()) {
+      returningValue.value = acceptedToken.value
+      returningValue.description = acceptedToken.description
+    }
+  }
+
+  return returningValue
+}
+
+function isVariable(token, variables) {
+  let returningValue = {
+    value: '',
+    description: '',
+  }
+
+  for (const acceptedVariable of variables) {
+    if (acceptedVariable.value.toLowerCase() == token.trim().toLowerCase()) {
+      returningValue.value = acceptedVariable.value
+      returningValue.description = acceptedVariable.description
+    }
+  }
+
+  return returningValue
 }
 
 function getVariables(code) {

@@ -1,6 +1,10 @@
 textarea {
-  width: 45vw;
+  width: 33vw;
   height: 80vh;
+}
+
+#input {
+  width: 20vw;
 }
 
 #test {
