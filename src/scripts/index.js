@@ -1,4 +1,5 @@
 import { lexical } from './analyzers/lexical.js'
+import { syntatic } from './analyzers/syntatic.js'
 
 const inputElement = document.querySelector('#input')
 const lexicalOutputElement = document.querySelector('#output-lexical')
@@ -34,8 +35,9 @@ end`
 createTestInput()
 
 function testCode() {
-  const lexicalOutput = lexical(inputElement.value.toString())
-  const syntaticOutput = syntatic(inputElement.value.toString())
+  const code = inputElement.value.toString()
+  const lexicalOutput = lexical(code)
+  const syntaticOutput = syntatic(code)
 
   lexicalOutputElement.value = lexicalOutput
     .map((item) => item.value + ' - ' + item.description)

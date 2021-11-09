@@ -1,6 +1,6 @@
 import { isNumber } from '../../helpers/isNumber.js'
 
-const acceptedTokens = [
+let acceptedTokens = [
   // acceptedIndicators
   { value: 'Begin', description: 'Indicador de início de código' },
   { value: 'End', description: 'Indicador de fim de código' },
@@ -152,6 +152,8 @@ function getValidToken(code, startingIndex, variables) {
       returningValue.value = unknownVariable
       returningValue.description = 'Token não reconhecido'
       returningValue.nextIndex = finalUnknownVariableIndex
+
+      acceptedTokens.push({ value: unknownVariable, description: 'Token não reconhecido' })
 
       return returningValue
     }
