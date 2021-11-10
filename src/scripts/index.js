@@ -43,8 +43,10 @@ function testCode() {
     .map((item) => item.value + ' - ' + item.description)
     .join('\n')
 
-  syntaticOutputElement.value = syntaticOutput
-    .map((item) => item.description)
+  const variableDeclarationErrors = syntaticOutput.variableDeclarationAnalysis.errors
+
+  syntaticOutputElement.value = variableDeclarationErrors
+    .map((item) => `Linha: ${item.line} -> ${item.error}`)
     .join('\n')
 }
 

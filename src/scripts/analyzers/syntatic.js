@@ -25,110 +25,75 @@ import { isLetter, isParenthesis, isWhitespace, isTypeDeclarator, isValidType, i
 // Pode existir um comando IF dentro de outro Comando IF ou dentro de um comando FOR ou vice - versa, porém, cada IF ou FOR, precisa ter seu próprio EndIF ou EndFor
 
 export const syntatic = (code) => {
-  const foundErrors = []
+  const variableDeclarationValues = getVariableDeclarationValues(code)
 
-  const variableDeclarationErrors = getVariableDeclarationErrors(code)
+  console.log(variableDeclarationValues)
 
-  if(variableDeclarationErrors.length) {
-    foundErrors.push(variableDeclarationErrors)
-  }
-
-  return foundErrors 
+  return {
+    variableDeclarationAnalysis: variableDeclarationValues
+  } 
 }
 
-function getVariableDeclarationErrors(code) {
+function getVariableDeclarationValues(code) {
   const errors = []
-  const tokens = []
+  const variables = []
 
-  const lastIndex = code.indexOf('begin');
+  const lastIndex = code.indexOf('begin') - 1;
 
   const variableDeclarationSectionLines = code.substring(0, lastIndex).split('\n')
 
   for(let i = 0; i < variableDeclarationSectionLines.length; i++) {
     const declarations = variableDeclarationSectionLines[i]
-    const tokens = []
 
     if (declarations.includes('var')) {
       continue;
     }
 
-    let cursor = 0
-    let symbol = '';
-    let type = {}
-    let varName = {}
-    let typeValue = {}
-    while (cursor < declarations.length) {
-      type = {}
-      varName = {}
-      typeValue = {}
-      const character = declarations[cursor]
-      
-      if (isWhitespace(character)) {
-          cursor++;
-          continue;
-      }
-
-      if (isLetter(character)) {
-        symbol = character
-
-        while (isLetter(input[++cursor])) {
-          symbol += input[cursor]
-        }
-
-        varName = {
-          value: symbol,
-        }
-        continue;
-      }
-
-      if (isTypeDeclarator(character)) {
-        symbol = character
-
-        if (isWhitespace(input[++cursor])) {
-          cursor++;
-          continue;
-        }
-
-        while (isLetter(input[++cursor])) {
-          symbol += input[cursor]
-        }
-
-        if (!isValidType(symbol)) {
-          throw new Error(`${symbol} is not valid`);
-        }
-
-        type = {
-          type: symbol,
-        }
-        continue;
-      }
-
-      if (isParenthesis(character)) {
-        if (isNumber(character)) {
-          let number = character;
-    
-          while (isNumber(input[++cursor])) {
-            number += input[cursor];
-          }
-    
-          typeValue = {
-            typeValue: number
-          }
-          continue;
-        } else {
-          throw new Error(`${character} is not valid`);
-        }
-      }
-
-      throw new Error(`${character} is not valid`);
+    if (isWhitespace(declarations)) {
+      continue;
     }
 
-    tokens.push({
-      ...varName,
-      ...type,
-      ...typeValue
+    const variableDeclaration = declarations.split(':')
+
+    if(!(variableDeclaration.length === 2)) {
+      errors.push({
+        line: i + 1,
+        error: 'Variável não está declarada corretamente'
+      })
+
+      continue
+    }
+
+    const variableName = variableDeclaration[0].trim()
+    const variableType = variableDeclaration[1].trim().split('(')[0]
+
+    if(isWhitespace(variableName)) {
+      errors.push({
+        line: i + 1,
+        error: 'Variável não está declarada corretamente'
+      })
+
+      continue
+    }
+
+    console.log(variableType)
+    if(!isValidType(variableType)) {
+      errors.push({
+        line: i + 1,
+        error: `Tipo de variável ${variableType} é inválido`
+      })
+
+      continue
+    }
+
+    variables.push({
+      name: variableName,
+      type: variableType
     })
   }
-
-  return errors
+  
+  return {
+    errors, 
+    variables
+  }
 }

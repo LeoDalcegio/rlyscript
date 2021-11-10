@@ -2,11 +2,11 @@ const LETTER = /[a-zA-Z]/;
 const WHITESPACE = /\s+/;
 const NUMBER = /^[0-9]+$/;
 const OPERATORS = ['+', '-', '*', '/', '%'];
-const VALID_TYPES = ['int, string']
+const VALID_TYPES = ['int','float', 'string', 'boolean']
 
 export const isLetter = character => LETTER.test(character);
 
-export const isWhitespace = character => WHITESPACE.test(character);
+export const isWhitespace = character => character.trim() === '';
 
 export const isNumber = character => NUMBER.test(character);
 
@@ -23,4 +23,4 @@ export const isOperator = character => OPERATORS.includes(character);
 
 export const isTypeDeclarator = character => character === ':';
 
-export const isValidType = character => character.includes(VALID_TYPES);
+export const isValidType = character => VALID_TYPES.includes(character.toLowerCase().trim());
