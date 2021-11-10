@@ -48,6 +48,11 @@ function testCode() {
   syntaticOutputElement.value = variableDeclarationErrors
     .map((item) => `Linha: ${item.line} -> ${item.error}`)
     .join('\n')
+
+  syntaticOutputElement.value = syntaticOutputElement.value + '\n' + syntaticOutput.codeAnalysis
+    .map((item) => `Linha: ${item.line} -> ${item.error}`)
+    .join('\n')
+  
 }
 
 
