@@ -13,9 +13,9 @@ import { isLetter, isParenthesis, isWhitespace, isTypeDeclarator, isValidType, i
 
 // Comando Write => Comando Write, símbolo(, variável ou símbolo " com texto aleátorio, símbolo aspas, vírgula, variável, símbolo ).
 
-// Comando de atribuição => variável, símbolo "=" constante ou variável
-
 // Comando Read => Comando Read, símbolo(, variável, símbolo).
+
+// Comando de atribuição => variável, símbolo "=" constante ou variável
 
 // Operadores só podem ser aceitos: "=, +, -, /, *, <,>,!=,==,>=,<=,+=,-=,*=,/="
 
@@ -137,6 +137,35 @@ function getCodeErrors(code, variables) {
       })
       continue;
     }
+
+    if(codeLine.toLowerCase().indexOf(' if ') >= 0) {
+      const ifOperator = codeLine.trim().split(' ')
+
+      const variableOrConstant1 = ifOperator[1] 
+      const comparisonOperator = ifOperator[2] 
+      const variableOrConstant2 = ifOperator[3] 
+      
+      
+      // procurar endif,
+      // se encontrar um if dnv antes de um endif, tem q procurar o endif desse if encontrado
+      console.log(ifLine)
+    }
+
+    if(codeLine.toLowerCase().indexOf(' for ') >= 0) {
+      const forOperator = codeLine.trim().split(' ')
+
+      const variable1 = forOperator[0] 
+      const attributionOperator1 = forOperator[1] 
+      const constant1 = forOperator[2] 
+      const toOperator = forOperator[3] 
+      const constant2 = forOperator[4] 
+      const doOperator = forOperator[5] 
+      
+      
+      // procurar endfor,
+      // se encontrar um for dnv antes de um endfor, tem q procurar o endfor desse for encontrado
+      console.log(ifLine)
+    }
   }
 
   // token by token
@@ -168,14 +197,14 @@ function validateToken(code, startingIndex, variables) {
 
   console.log(variables)
 
-  // normal code
   for (let i = startingIndex; i <= code.length; i++) {
     const token = code.slice(startingIndex, i);
     const previousToken = code.slice(startingIndex - 1, i - 1);
 
     // IF
     // analisar IF, procurar o EndIF, retornar o index do final do IF
-
+    // isIF
+    
     // FOR
     // mesma coisa do IF
 
