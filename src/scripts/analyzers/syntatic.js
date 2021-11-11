@@ -107,7 +107,7 @@ function getCodeErrors(code, variables) {
   const errors = []
 
   const firstIndex = code.indexOf('begin');
-  const lastIndex = code.substring(code.length -3, code.length)
+  const endToken = code.substring(code.length - 'end'.length, code.length)
 
   if (firstIndex === -1){
     errors.push({
@@ -116,7 +116,7 @@ function getCodeErrors(code, variables) {
     })
   }
 
-  if (lastIndex.trim().toLowerCase() !== 'end'){
+  if (endToken.trim().toLowerCase() !== 'end'){
     errors.push({
       line: '',
       error: 'Obrigatório existir o token "end" no final do código'
@@ -125,6 +125,7 @@ function getCodeErrors(code, variables) {
 
   const codeSectionLines = code.substring(firstIndex, code.length).split('\n')
   
+  // line by line
   for(let i = 0; i < codeSectionLines.length; i++) {
     const codeLine = codeSectionLines[i]
     const codeLineIndex = variables.length + i + 2
@@ -136,10 +137,47 @@ function getCodeErrors(code, variables) {
       })
       continue;
     }
+  }
+
+  // token by token
+  const codeToAnalyze = code.substring(firstIndex + 'begin'.length, code.length - 'end'.length).trim()
+  let startingIndex = 0
+  let foundErrors = []
+
+  while (true) {
+    if (!codeToAnalyze[startingIndex]) break
+
+    const { value, description, nextIndex } = validateToken(codeToAnalyze, startingIndex, variables)
+
+    if (nextIndex === 0) break;
+
+    foundErrors.push({ value, description })
+
+    startingIndex = nextIndex
+  }
+
+  return errors
+}
+
+function validateToken(code, startingIndex, variables) {
+  let returningValue = {
+    value: '',
+    description: '',
+    nextIndex: 0
+  }
+
+  console.log(variables)
+
+  // normal code
+  for (let i = startingIndex; i <= code.length; i++) {
+    const token = code.slice(startingIndex, i);
+    const previousToken = code.slice(startingIndex - 1, i - 1);
 
     // IF
+    // analisar IF, procurar o EndIF, retornar o index do final do IF
 
     // FOR
+    // mesma coisa do IF
 
     // Read
 
@@ -152,5 +190,5 @@ function getCodeErrors(code, variables) {
     // Validate if variable is declared
   }
 
-  return errors
+  return returningValue
 }
