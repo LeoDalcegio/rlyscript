@@ -1,15 +1,22 @@
+#container {
+  display: flex;
+  flex-flow: wrap;
+  align-items: center;
+}
+
 textarea {
   width: 33vw;
   height: 80vh;
 }
 
 #input {
-  width: 20vw;
+  width: 80vw;
 }
 
 #test {
+  height: 80px;
   font-weight: 600;
-  background-color: #4CAF50;
+  background-color: #2a05af;
   border: none;
   color: white;
   padding: 0 12px;
@@ -17,9 +24,19 @@ textarea {
   text-decoration: none;
   display: inline-block;
   font-size: 18px;
-  cursor: pointer
+  cursor: pointer;
+  margin-left: 10px;
 }
 
-#container {
-  display: flex;
+#output-lexical, #output-syntatic {
+  margin-right: 10px;
+  height: 400px;
+}
+
+#output-syntatic {
+  border-color: rgb(65, 209, 219);
+}
+
+#output-lexical {
+  border-color: rgb(71, 248, 1);
 }
