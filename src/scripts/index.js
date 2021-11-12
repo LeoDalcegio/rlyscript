@@ -54,7 +54,7 @@ function testCode() {
     .join('\n')
 
   syntaticOutputElement.value = syntaticOutputElement.value + '\n' + syntaticOutput.codeAnalysis
-    .map((item) => item.error)
+    .map((item) => item.error + '\n')
     .join('\n')
 
 }

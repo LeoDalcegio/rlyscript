@@ -169,52 +169,59 @@ function getCodeErrors(code, variables) {
 
       const forOperator = codeLine.trim().split(' ')
 
-      const variable1 = forOperator[1]
-      const attributionOperator1 = forOperator[2]
-      const constant1 = forOperator[3]
-      const toOperator = forOperator[4]
-      const constant2 = forOperator[5]
-      const doOperator = forOperator[6]
+      try {
+        const variable1 = forOperator[1]
+        const attributionOperator1 = forOperator[2]
+        const constant1 = forOperator[3]
+        const toOperator = forOperator[4]
+        const constant2 = forOperator[5]
+        const doOperator = forOperator[6]
 
-      if (!isVariable(variable1, variables)) {
+        if (!isVariable(variable1, variables)) {
+          errors.push({
+            line: 0,
+            error: 'Variável de atrubuição do "for" é inválida'
+          })
+        }
+
+        if (attributionOperator1.trim() != '=') {
+          errors.push({
+            line: 0,
+            error: 'Operador de atribuição não encontrado no laço "for"'
+          })
+        }
+
+        if (!isNumber(constant1)) {
+          errors.push({
+            line: 0,
+            error: 'Primeira constante não encontrada no laço "for"'
+          })
+        }
+
+        if (toOperator.trim().toLowerCase() != 'to') {
+          errors.push({
+            line: 0,
+            error: 'Token "to" não encontrado no laço "for"'
+          })
+        }
+
+        if (!isNumber(constant2)) {
+          errors.push({
+            line: 0,
+            error: 'Segunda constante não encontrada no laço "for"'
+          })
+        }
+
+        if (doOperator.trim().toLowerCase() != 'do') {
+          errors.push({
+            line: 0,
+            error: 'Token "do" não encontrado no laço "for"'
+          })
+        }
+      } catch (e) {
         errors.push({
           line: 0,
-          error: 'Variável de atrubuição do "for" é inválida'
-        })
-      }
-
-      if (attributionOperator1.trim() != '=') {
-        errors.push({
-          line: 0,
-          error: 'Operador de atribuição não encontrado no laço "for"'
-        })
-      }
-
-      if (!isNumber(constant1)) {
-        errors.push({
-          line: 0,
-          error: 'Primeira constante não encontrada no laço "for"'
-        })
-      }
-
-      if (toOperator.trim().toLowerCase() != 'to') {
-        errors.push({
-          line: 0,
-          error: 'Token "to" não encontrado no laço "for"'
-        })
-      }
-
-      if (!isNumber(constant2)) {
-        errors.push({
-          line: 0,
-          error: 'Segunda constante não encontrada no laço "for"'
-        })
-      }
-
-      if (doOperator.trim().toLowerCase() != 'do') {
-        errors.push({
-          line: 0,
-          error: 'Token "do" não encontrado no laço "for"'
+          error: 'Erro ao analisar o laço "for"'
         })
       }
     }
