@@ -1,5 +1,9 @@
-import { isLetter, isParenthesis, isWhitespace, isTypeDeclarator, isValidType, isNumber } from "../../helpers/identify.js"
+import { isLetter, isParenthesis, isWhitespace, isTypeDeclarator, isValidType, isNumber, isComparisonOperator } from "../../helpers/identify.js"
 
+const endifRegex = new RegExp('\\bendif\\b')
+const ifRegex = new RegExp('\\bif\\b')
+const forRegex = new RegExp('\\bfor\\b')
+const endForRegex = new RegExp('\\bendfor\\b')
 
 // * Na seção de variáveis, verificar se existem qualquer símbolo especial entre os nomes de variáveis, qualquer palavra diferente de Int, Float, Boolean ou String nos tipos de variáveis precisam ser detectados como erro.
 
@@ -7,31 +11,27 @@ import { isLetter, isParenthesis, isWhitespace, isTypeDeclarator, isValidType, i
 
 // * inicia com begin e termina com end, não pode ter nada antes de begin e nada depois de end exceto a seção de variáveis
 
-// Comando IF=> Comando IF, variável ou constante, operador de comparação, variável ou constante, depois virá qualquer linha de código e obrigatoriamente precisará existir o comando Endif.
+// * Comando IF=> Comando IF, variável ou constante, operador de comparação, variável ou constante, depois virá qualquer linha de código e obrigatoriamente precisará existir o comando Endif.
 
-// Comando FOR => Comando para, variável, operador de atribuição, constante, comando TO, constante ou variável, comando DO, linhas de código e obrigatoriamente comando EndFor.
+// * Comando FOR => Comando para, variável, operador de atribuição, constante, comando TO, constante ou variável, comando DO, linhas de código e obrigatoriamente comando EndFor.
 
-// Comando Write => Comando Write, símbolo(, variável ou símbolo " com texto aleátorio, símbolo aspas, vírgula, variável, símbolo ).
+// * Comando Write => Comando Write, símbolo(, variável ou símbolo " com texto aleátorio, símbolo aspas, vírgula, variável, símbolo ).
 
-// Comando Read => Comando Read, símbolo(, variável, símbolo).
+// * Comando Read => Comando Read, símbolo(, variável, símbolo).
 
-// Comando de atribuição => variável, símbolo "=" constante ou variável
+// * Comando de atribuição => variável, símbolo "=" constante ou variável
 
-// Operadores só podem ser aceitos: "=, +, -, /, *, <,>,!=,==,>=,<=,+=,-=,*=,/="
-
-// Precisa validar se as variáveis usadas no código foram declaradas na seção var.
-
-// Pode existir um comando IF dentro de outro Comando IF ou dentro de um comando FOR ou vice - versa, porém, cada IF ou FOR, precisa ter seu próprio EndIF ou EndFor
+// * Operadores só podem ser aceitos: "=, +, -, /, *, <,>,!=,==,>=,<=,+=,-=,*=,/="
 
 export const syntatic = (code) => {
   const variableDeclarationValues = getVariableDeclarationValues(code)
 
-  const codeErrors = getCodeErrors(code, variableDeclarationValues.variables) 
+  const codeErrors = getCodeErrors(code, variableDeclarationValues.variables)
 
   return {
     variableDeclarationAnalysis: variableDeclarationValues,
     codeAnalysis: codeErrors
-  } 
+  }
 }
 
 function getVariableDeclarationValues(code) {
@@ -41,8 +41,8 @@ function getVariableDeclarationValues(code) {
   const lastIndex = code.indexOf('begin');
 
   const variableDeclarationSectionLines = code.substring(0, lastIndex).split('\n')
-  
-  for(let i = 0; i < variableDeclarationSectionLines.length; i++) {
+
+  for (let i = 0; i < variableDeclarationSectionLines.length; i++) {
     const declarations = variableDeclarationSectionLines[i]
 
     if (i === 0 && declarations.trim().toLowerCase() !== 'var') {
@@ -61,7 +61,7 @@ function getVariableDeclarationValues(code) {
 
     const variableDeclaration = declarations.split(':')
 
-    if(!(variableDeclaration.length === 2)) {
+    if (!(variableDeclaration.length === 2)) {
       errors.push({
         line: i + 1,
         error: 'Variável não está declarada corretamente'
@@ -73,7 +73,7 @@ function getVariableDeclarationValues(code) {
     const variableName = variableDeclaration[0].trim()
     const variableType = variableDeclaration[1].trim().split('(')[0]
 
-    if(isWhitespace(variableName)) {
+    if (isWhitespace(variableName)) {
       errors.push({
         line: i + 1,
         error: 'Variável não está declarada corretamente'
@@ -82,7 +82,7 @@ function getVariableDeclarationValues(code) {
       continue
     }
 
-    if(!isValidType(variableType)) {
+    if (!isValidType(variableType)) {
       errors.push({
         line: i + 1,
         error: `Tipo de variável "${variableType}" é inválido`
@@ -98,25 +98,30 @@ function getVariableDeclarationValues(code) {
   }
 
   return {
-    errors, 
+    errors,
     variables
   }
 }
 
 function getCodeErrors(code, variables) {
-  const errors = []
+  let errors = []
+
+  let ifsFounded = 0
+  let endIfsFounded = 0
+  let forsFounded = 0
+  let endForsFounded = 0
 
   const firstIndex = code.indexOf('begin');
   const endToken = code.substring(code.length - 'end'.length, code.length)
 
-  if (firstIndex === -1){
+  if (firstIndex === -1) {
     errors.push({
       line: '',
       error: 'Obrigatório existir o token "begin" no início do código'
     })
   }
 
-  if (endToken.trim().toLowerCase() !== 'end'){
+  if (endToken.trim().toLowerCase() !== 'end') {
     errors.push({
       line: '',
       error: 'Obrigatório existir o token "end" no final do código'
@@ -124,13 +129,13 @@ function getCodeErrors(code, variables) {
   }
 
   const codeSectionLines = code.substring(firstIndex, code.length).split('\n')
-  
+
   // line by line
-  for(let i = 0; i < codeSectionLines.length; i++) {
+  for (let i = 0; i < codeSectionLines.length; i++) {
     const codeLine = codeSectionLines[i]
     const codeLineIndex = variables.length + i + 2
 
-    if(i === 0 && codeLine.trim().toLowerCase() !== 'begin') {
+    if (i === 0 && codeLine.trim().toLowerCase() !== 'begin') {
       errors.push({
         line: codeLineIndex,
         error: 'Obrigatório existir o token "begin" no início do código'
@@ -138,86 +143,280 @@ function getCodeErrors(code, variables) {
       continue;
     }
 
-    if(codeLine.toLowerCase().indexOf(' if ') >= 0) {
-      const ifOperator = codeLine.trim().split(' ')
+    if (ifRegex.test(codeLine)) {
+      const ifValidationErrors = validateIf(codeLine, variables)
 
-      const variableOrConstant1 = ifOperator[1] 
-      const comparisonOperator = ifOperator[2] 
-      const variableOrConstant2 = ifOperator[3] 
-      
-      
-      // procurar endif,
-      // se encontrar um if dnv antes de um endif, tem q procurar o endif desse if encontrado
-      console.log(ifLine)
+      if (ifValidationErrors.length) {
+        errors = errors.concat(ifValidationErrors)
+      }
+
+      const endIfValidationErrors = searchEndIf(codeSectionLines, i)
+
+      if (endIfValidationErrors.length) {
+        errors = errors.concat(endIfValidationErrors)
+      }
+
+      ifsFounded++
     }
 
-    if(codeLine.toLowerCase().indexOf(' for ') >= 0) {
+
+    if (endifRegex.test(codeLine)) {
+      endIfsFounded++
+    }
+
+    if (forRegex.test(codeLine)) {
+      forsFounded++
+
       const forOperator = codeLine.trim().split(' ')
 
-      const variable1 = forOperator[0] 
-      const attributionOperator1 = forOperator[1] 
-      const constant1 = forOperator[2] 
-      const toOperator = forOperator[3] 
-      const constant2 = forOperator[4] 
-      const doOperator = forOperator[5] 
-      
-      
-      // procurar endfor,
-      // se encontrar um for dnv antes de um endfor, tem q procurar o endfor desse for encontrado
-      console.log(ifLine)
+      const variable1 = forOperator[1]
+      const attributionOperator1 = forOperator[2]
+      const constant1 = forOperator[3]
+      const toOperator = forOperator[4]
+      const constant2 = forOperator[5]
+      const doOperator = forOperator[6]
+
+      if (!isVariable(variable1, variables)) {
+        errors.push({
+          line: 0,
+          error: 'Variável de atrubuição do "for" é inválida'
+        })
+      }
+
+      if (attributionOperator1.trim() != '=') {
+        errors.push({
+          line: 0,
+          error: 'Operador de atribuição não encontrado no laço "for"'
+        })
+      }
+
+      if (!isNumber(constant1)) {
+        errors.push({
+          line: 0,
+          error: 'Primeira constante não encontrada no laço "for"'
+        })
+      }
+
+      if (toOperator.trim().toLowerCase() != 'to') {
+        errors.push({
+          line: 0,
+          error: 'Token "to" não encontrado no laço "for"'
+        })
+      }
+
+      if (!isNumber(constant2)) {
+        errors.push({
+          line: 0,
+          error: 'Segunda constante não encontrada no laço "for"'
+        })
+      }
+
+      if (doOperator.trim().toLowerCase() != 'do') {
+        errors.push({
+          line: 0,
+          error: 'Token "do" não encontrado no laço "for"'
+        })
+      }
+    }
+
+    if (endForRegex.test(codeLine)) {
+      endForsFounded++
+    }
+
+    if (codeLine.trim().toLowerCase().indexOf('write(') >= 0) {
+      const writeCommand = codeLine.split('(')[1]
+
+      if (writeCommand.trim().toLowerCase().indexOf(')') < 0) {
+        errors.push({
+          line: 0,
+          error: 'Comando write deve ser finalizado com ")"'
+        })
+      }
+
+      const stringOrVariable = writeCommand.trim().toLowerCase().substr(0, writeCommand.length - 1)
+
+      let isValid = false
+
+      try {
+        if (!!eval(stringOrVariable)) {
+          isValid = true
+        }
+      } catch (e) { }
+
+      if (isVariable(stringOrVariable, variables)) {
+        isValid = true
+      }
+
+      if (!isValid) {
+        errors.push({
+          line: 0,
+          error: `É necessário que seja informado uma variável, string ou número dentro do write - token "${stringOrVariable}" inválido`
+        })
+      }
+    }
+
+    if (codeLine.trim().toLowerCase().indexOf('read(') >= 0) {
+      const writeCommand = codeLine.split('(')[1]
+
+      if (writeCommand.trim().toLowerCase().indexOf(')') < 0) {
+        errors.push({
+          line: 0,
+          error: 'Comando read deve ser finalizado com ")"'
+        })
+      }
+
+      const writeVariable = writeCommand.trim().toLowerCase().substr(0, writeCommand.length - 1)
+
+      if (!isVariable(writeVariable, variables)) {
+        errors.push({
+          line: 0,
+          error: `É necessário que seja informado uma variável dentro do read - token "${writeVariable}" inválido`
+        })
+      }
+    }
+
+    if (codeLine.indexOf(' = ') >= 0) {
+      if (!ifRegex.test(codeLine) && !forRegex.test(codeLine)) {
+
+        const ifSplited = codeLine.trim().split(' ')
+
+        const leftSideIf = ifSplited[0]
+        const rightSideIf = ifSplited[2]
+
+        if (!isVariable(leftSideIf, variables)) {
+          errors.push({
+            line: 0,
+            error: `É necessário que seja informado uma variável a esquerda de um operador de atribuição - token "${leftSideIf}" inválido`
+          })
+        }
+
+        if (!isVariable(rightSideIf, variables)) {
+          try {
+            eval(rightSideIf)
+          } catch (e) {
+            errors.push({
+              line: 0,
+              error: `É necessário que seja informado uma variável, string ou número a direita de um operador de atribuição - token "${rightSideIf}" inválido`
+            })
+          }
+        }
+      }
     }
   }
 
-  // token by token
-  const codeToAnalyze = code.substring(firstIndex + 'begin'.length, code.length - 'end'.length).trim()
-  let startingIndex = 0
-  let foundErrors = []
+  if (ifsFounded > endIfsFounded) {
+    errors.push({
+      line: 0,
+      error: 'É necessário que exista um "endif" no final de um "if"'
+    })
+  }
 
-  while (true) {
-    if (!codeToAnalyze[startingIndex]) break
-
-    const { value, description, nextIndex } = validateToken(codeToAnalyze, startingIndex, variables)
-
-    if (nextIndex === 0) break;
-
-    foundErrors.push({ value, description })
-
-    startingIndex = nextIndex
+  if (forsFounded > endForsFounded) {
+    errors.push({
+      line: 0,
+      error: 'É necessário que exista um "endfor" no final de um "for"'
+    })
   }
 
   return errors
 }
 
-function validateToken(code, startingIndex, variables) {
-  let returningValue = {
-    value: '',
-    description: '',
-    nextIndex: 0
+function validateIf(codeLine, variables) {
+  let errors = []
+
+  const ifOperator = codeLine.trim().split(' ')
+
+  const variableOrConstant1 = ifOperator[1]
+  const comparisonOperator = ifOperator[2]
+  const variableOrConstant2 = ifOperator[3]
+
+  if (!verifyVariableOrConstant(variableOrConstant1, variables)) {
+    errors.push({
+      line: 0,
+      error: `Elemento a esquerda do if deve ser uma variável declarada ou constante - token "${variableOrConstant1}" inválido`
+    })
   }
 
-  console.log(variables)
-
-  for (let i = startingIndex; i <= code.length; i++) {
-    const token = code.slice(startingIndex, i);
-    const previousToken = code.slice(startingIndex - 1, i - 1);
-
-    // IF
-    // analisar IF, procurar o EndIF, retornar o index do final do IF
-    // isIF
-    
-    // FOR
-    // mesma coisa do IF
-
-    // Read
-
-    // Write
-
-    // = 
-
-    // Operators
-
-    // Validate if variable is declared
+  if (!isComparisonOperator(comparisonOperator)) {
+    errors.push({
+      line: 0,
+      error: `Elemento do meio do if deve ser um operador de comparação - token "${comparisonOperator}" inválido`
+    })
   }
+
+  if (!verifyVariableOrConstant(variableOrConstant2, variables)) {
+    errors.push({
+      line: 0,
+      error: `Elemento a direita do if deve ser uma variável declarada ou constante - token "${variableOrConstant2}" inválido`
+    })
+  }
+
+  return errors
+}
+
+function isVariable(varialbeToVerify, variables) {
+  let returningValue = false
+
+  variables.forEach((variable) => {
+    if (variable.name.trim().toLowerCase() === varialbeToVerify.trim().toLowerCase()) {
+      returningValue = true
+    }
+  })
 
   return returningValue
+}
+
+function verifyVariableOrConstant(variableOrConstant, variables) {
+  let returningValue = false
+
+  if (isNumber(variableOrConstant)) {
+    return true
+  }
+
+  variables.forEach((variable) => {
+    if (variable.name.trim().toLowerCase() === variableOrConstant.trim().toLowerCase()) {
+      returningValue = true
+    }
+  })
+
+  return returningValue
+}
+
+function searchEndIf(codeLines, startingIndex) {
+  let errors = []
+  let endIfsFounded = 0
+  let edIfsSearched = 1
+  startingIndex = startingIndex + 1
+
+  for (let i = startingIndex; i < codeLines.length; i++) {
+    const codeLine = codeLines[i].trim()
+
+    if (ifRegex.test(codeLine)) {
+      const ifValidationErrors = validateIf(codeLine)
+
+      errors.concat(ifValidationErrors)
+
+      edIfsSearched += 1
+
+      const endIfValidationErrors = searchEndIf(codeLines, i)
+
+      if (endIfValidationErrors.length === 0) endIfsFounded += 1
+
+      errors.concat(endIfValidationErrors)
+    }
+
+    if (endifRegex.test(codeLine)) {
+      endIfsFounded += 1
+      break
+    }
+  }
+
+  if (endIfsFounded !== edIfsSearched) {
+    errors.push({
+      line: 0,
+      error: 'É necessário que exista um "endif" no final de um "if"'
+    })
+  }
+
+  return errors
 }

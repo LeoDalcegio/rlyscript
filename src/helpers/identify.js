@@ -2,7 +2,8 @@ const LETTER = /[a-zA-Z]/;
 const WHITESPACE = /\s+/;
 const NUMBER = /^[0-9]+$/;
 const OPERATORS = ['+', '-', '*', '/', '%'];
-const VALID_TYPES = ['int','float', 'string', 'boolean']
+const VALID_TYPES = ['int', 'float', 'string', 'boolean']
+const COMPARISON_OPERATORS = ['=', '>=', '>', '<', '<=', '!='];
 
 export const isLetter = character => LETTER.test(character);
 
@@ -24,3 +25,5 @@ export const isOperator = character => OPERATORS.includes(character);
 export const isTypeDeclarator = character => character === ':';
 
 export const isValidType = character => VALID_TYPES.includes(character.toLowerCase().trim());
+
+export const isComparisonOperator = character => COMPARISON_OPERATORS.includes(character.toLowerCase().trim())

@@ -1,4 +1,4 @@
-import { isNumber } from '../../helpers/isNumber.js'
+import { isNumber } from "../../helpers/identify.js"
 
 let acceptedTokens = [
   // acceptedIndicators

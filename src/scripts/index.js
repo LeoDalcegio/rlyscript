@@ -20,6 +20,10 @@ begin
   if idade >= 18
     write("Pode ser preso")
     QtdeMaior += 1
+
+    if 1 = 1
+      idade = 18
+    endif
   else
     write("Não pode ser preso")
     QtdeMenor += 1
@@ -52,7 +56,7 @@ function testCode() {
   syntaticOutputElement.value = syntaticOutputElement.value + '\n' + syntaticOutput.codeAnalysis
     .map((item) => item.error)
     .join('\n')
-  
+
 }
 
 
