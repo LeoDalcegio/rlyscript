@@ -6,7 +6,7 @@ const lexicalOutputElement = document.querySelector('#output-lexical')
 const syntaticOutputElement = document.querySelector('#output-syntatic')
 
 function createTestInput() {
-  const testText = `var
+  /*const testText = `var
   numero: int
   nome: string(40)
   cont: int
@@ -31,7 +31,7 @@ begin
   for cont = 1 to 10 do
     write(cont)
   endfor
-end`
+end`*/
 
   inputElement.value = testText
 }
