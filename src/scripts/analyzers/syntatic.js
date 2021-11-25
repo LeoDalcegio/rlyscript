@@ -1,27 +1,9 @@
-import { isLetter, isParenthesis, isWhitespace, isTypeDeclarator, isValidType, isNumber, isComparisonOperator } from "../../helpers/identify.js"
+import { isComparisonOperator, isNumber, isValidType, isWhitespace } from "../../helpers/identify.js"
 
 const endifRegex = new RegExp('\\bendif\\b')
 const ifRegex = new RegExp('\\bif\\b')
 const forRegex = new RegExp('\\bfor\\b')
 const endForRegex = new RegExp('\\bendfor\\b')
-
-// * Na seção de variáveis, verificar se existem qualquer símbolo especial entre os nomes de variáveis, qualquer palavra diferente de Int, Float, Boolean ou String nos tipos de variáveis precisam ser detectados como erro.
-
-// * Obrigatório existir a palavra begin, antes da palavra begin, só pode ter "var" e variáveis.
-
-// * inicia com begin e termina com end, não pode ter nada antes de begin e nada depois de end exceto a seção de variáveis
-
-// * Comando IF=> Comando IF, variável ou constante, operador de comparação, variável ou constante, depois virá qualquer linha de código e obrigatoriamente precisará existir o comando Endif.
-
-// * Comando FOR => Comando para, variável, operador de atribuição, constante, comando TO, constante ou variável, comando DO, linhas de código e obrigatoriamente comando EndFor.
-
-// * Comando Write => Comando Write, símbolo(, variável ou símbolo " com texto aleátorio, símbolo aspas, vírgula, variável, símbolo ).
-
-// * Comando Read => Comando Read, símbolo(, variável, símbolo).
-
-// * Comando de atribuição => variável, símbolo "=" constante ou variável
-
-// * Operadores só podem ser aceitos: "=, +, -, /, *, <,>,!=,==,>=,<=,+=,-=,*=,/="
 
 export const syntatic = (code) => {
   const variableDeclarationValues = getVariableDeclarationValues(code)
@@ -73,6 +55,8 @@ function getVariableDeclarationValues(code) {
     const variableName = variableDeclaration[0].trim()
     const variableType = variableDeclaration[1].trim().split('(')[0]
 
+    const fullType = variableDeclaration[1]
+
     if (isWhitespace(variableName)) {
       errors.push({
         line: i + 1,
@@ -93,7 +77,8 @@ function getVariableDeclarationValues(code) {
 
     variables.push({
       name: variableName,
-      type: variableType
+      type: variableType,
+      fullType
     })
   }
 
@@ -361,7 +346,7 @@ function validateIf(codeLine, variables) {
   return errors
 }
 
-function isVariable(varialbeToVerify, variables) {
+export function isVariable(varialbeToVerify, variables) {
   let returningValue = false
 
   variables.forEach((variable) => {
